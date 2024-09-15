@@ -1,7 +1,7 @@
 {
   "name": "sisi-blur",
   "displayName": "sisi-blur",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Blur images of Abdel Fattah Sisi",
   "license": "MIT",
   "private": false,
@@ -9,7 +9,9 @@
     "dev": "plasmo dev",
     "build": "plasmo build --target=firefox-mv2 --source-maps",
     "web-ext:sign": "web-ext sign --api-key=$JWT_USERNAME --api-secret=$JWT_SECRET --channel=unlisted --source-dir=build/firefox-mv2-prod",
-    "release:ci:firefox": "pnpm build && pnpm web-ext:sign"
+    "release:ci:firefox": "pnpm build && pnpm web-ext:sign",
+    "cs": "pnpm changeset",
+    "csv": "pnpm changeset version"
   },
   "dependencies": {
     "@hono/node-server": "^1.12.2",
