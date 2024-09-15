@@ -4,9 +4,9 @@
   "version": "0.0.1",
   "scripts": {
     "dev": "plasmo dev",
-    "build": "plasmo build --target=firefox-mv2 --zip --source-maps",
-    "release:ci:firefox": "pnpm build",
-    "web-ext:sign": "web-ext sign --api-key=$WEB_EXT_API_KEY --api-secret=$WEB_EXT_API_SECRET --channel=unlisted"
+    "build": "plasmo build --target=firefox-mv2 --source-maps",
+    "web-ext:sign": "web-ext sign --api-key=$WEB_EXT_API_KEY --api-secret=$WEB_EXT_API_SECRET --channel=unlisted --source-dir=build/firefox-mv2-prod",
+    "release:ci:firefox": "pnpm build && pnpm web-ext:sign"
   },
   "dependencies": {
     "@hono/node-server": "^1.12.2",
