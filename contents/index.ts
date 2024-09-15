@@ -76,7 +76,7 @@ chrome.runtime.onMessage.addListener(
         if (request.name === "compare-result") {
             const { id, result } = request.body;
             const image = document.querySelector(`img[data-blur-id="${id}"]`) as HTMLImageElement;
-            if (image && result && result.similarity > 0.4) { // Adjust threshold as needed
+            if (image && result && result.similarity > 0.5) { 
                 attachBlurUiToImage(image);
             }
         }
