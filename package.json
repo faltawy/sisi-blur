@@ -32,6 +32,11 @@
       "activeTab",
       "tabs"
     ],
+    "browser_specific_settings": {
+      "gecko": {
+        "id": "{eefb93d8-fd4a-465e-b6d0-6a4430e51f45}"
+      }
+    },
     "host_permissions": [
       "https://*/*",
       "http://*/*"
