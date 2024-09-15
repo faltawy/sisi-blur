@@ -43,6 +43,7 @@
     "web-ext": "^8.2.0"
   },
   "manifest": {
+    "custom_license": "LICENSE",
     "license": [
       "MIT"
     ],
