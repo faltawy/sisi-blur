@@ -4,8 +4,9 @@
   "version": "0.0.1",
   "scripts": {
     "dev": "plasmo dev",
-    "build": "plasmo build",
-    "package": "plasmo package"
+    "build": "plasmo build --target=firefox-mv2 --zip --source-maps",
+    "release:ci:firefox": "pnpm build",
+    "web-ext:sign": "web-ext sign --api-key=$WEB_EXT_API_KEY --api-secret=$WEB_EXT_API_SECRET --channel=unlisted"
   },
   "dependencies": {
     "@hono/node-server": "^1.12.2",
@@ -15,6 +16,7 @@
     "plasmo": "^0.89.2"
   },
   "devDependencies": {
+    "@changesets/cli": "^2.27.8",
     "@ianvs/prettier-plugin-sort-imports": "4.1.1",
     "@plasmohq/rps": "^1.8.7",
     "@types/chrome": "0.0.258",
@@ -22,7 +24,8 @@
     "@types/react": "18.2.48",
     "@types/react-dom": "18.2.18",
     "prettier": "3.2.4",
-    "typescript": "5.3.3"
+    "typescript": "5.3.3",
+    "web-ext": "^8.2.0"
   },
   "manifest": {
     "permissions": [

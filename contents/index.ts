@@ -21,10 +21,9 @@ function processImages(images: NodeListOf<HTMLImageElement>) {
         return;
     }
 
-    const imagesToProcess = Array.from(images).filter(image => image.height > SIZE);
-    // send images to background worker, attach id to html element and send it too
+    const imagesToProcess = Array.from(images).filter(image => image.height >= SIZE);
     const payload = imagesToProcess.map(image => {
-        const id = genUniqueId();
+        const id = genUniqueId(10);
         image.setAttribute('data-blur-id', id);
         return { id, src: image.src };
     });
@@ -59,11 +58,17 @@ function observeDocumentMutation() {
     });
 }
 
+observeDocumentMutation();
+
 window.addEventListener('load', function () {
     const images = getUnprocessedImages();
-    observeDocumentMutation();
     processImages(images);
 });
+
+setInterval(() => {
+    const images = getUnprocessedImages();
+    processImages(images);
+}, 1000);
 
 chrome.runtime.onMessage.addListener(
     function (request, sender, sendResponse) {
