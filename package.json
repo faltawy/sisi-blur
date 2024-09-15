@@ -8,7 +8,7 @@
   "scripts": {
     "dev": "plasmo dev",
     "build": "plasmo build --target=firefox-mv2 --source-maps",
-    "web-ext:sign": "web-ext sign --api-key=$JWT_USERNAME --api-secret=$JWT_SECRET --channel=unlisted --source-dir=build/firefox-mv2-prod",
+    "web-ext:sign": "web-ext sign --api-key=$JWT_USERNAME --api-secret=$JWT_SECRET --channel=listed --source-dir=build/firefox-mv2-prod",
     "release:ci:firefox": "pnpm build && pnpm web-ext:sign",
     "cs": "pnpm changeset",
     "csv": "pnpm changeset version"
