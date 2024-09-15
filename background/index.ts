@@ -15,11 +15,11 @@ const humanConfig = <Config>{
     face: {
         enabled: true,
         detector: { rotation: true, return: true, mask: false },
-        description: { enabled: true },
+        description: { enabled: false },
         iris: { enabled: true },
         emotion: { enabled: false },
         antispoof: { enabled: true },
-        liveness: { enabled: true },
+        liveness: { enabled: false },
     }
 }
 
@@ -60,6 +60,7 @@ async function fetchImageToImageBitmap(url: string): Promise<ImageBitmap> {
     return await createImageBitmap(blob);
 }
 
+
 async function preprocessSampleImages(human: Human) {
     const processed: FaceRecord[] = [];
 
@@ -74,15 +75,14 @@ async function preprocessSampleImages(human: Human) {
         }));
 
         for (const detection of detections) {
-            const face = detection.face.at(0);
-            if (!face) {
-                continue;
+            for (const face of detection.face) {
+                if (face.embedding) {
+                    processed.push({
+                        id: sample.id,
+                        descriptors: face.embedding
+                    });
+                }
             }
-            const descriptor = face.embedding;
-            processed.push({
-                id: sample.id,
-                descriptors: descriptor
-            });
         }
     }
 
@@ -92,80 +92,53 @@ async function preprocessSampleImages(human: Human) {
 
 const human = new Human(humanConfig);
 
-const matchOptions = { order: 2, multiplier: 25, min: 0.2, max: 0.8 }; // for faceres model
-
-const options = {
-    minConfidence: 0.6, // overal face confidence for box, face, gender, real, live
-    minSize: 224, // min input to face descriptor model before degradation
-    maxTime: 30000, // max time before giving up
-    blinkMin: 10, // minimum duration of a valid blink
-    blinkMax: 800, // maximum duration of a valid blink
-    threshold: 0.5, // minimum similarity
-    distanceMin: 0.4, // closest that face is allowed to be to the cammera in cm
-    distanceMax: 1.0, // farthest that face is allowed to be to the cammera in cm
-    mask: humanConfig.face.detector.mask,
-    rotation: humanConfig.face.detector.rotation,
-    ...matchOptions,
-};
-
 self.human = human;
 
-interface ComparisonResult {
+export interface ComparisonResult {
     id: string;
+    faces: {
+        similarity: number;
+        sampleId?: string;
+    }[];
+}
+
+interface FaceMatch {
     similarity: number;
-    distance: number;
+    sampleId: string;
 }
 
-async function compareImage(imageUrl: string, processed: FaceRecord[]): Promise<ComparisonResult | undefined> {
-    try {
-        const image = await fetchImageToImageBitmap(imageUrl);
-        const result = await human.detect(image, { face: { detector: { return: true } } });
-        const face = result.face.at(0);
-        if (face?.embedding) {
-            const descriptor = face.embedding;
-            return processed.reduce<ComparisonResult | undefined>((bestMatch, record) => {
-                const distance = human.match.distance(descriptor, record.descriptors);
-                const similarity = human.match.similarity(descriptor, record.descriptors);
-                if (!bestMatch || similarity > bestMatch.similarity) {
-                    return { id: record.id, similarity, distance };
-                }
-                return bestMatch;
-            }, undefined);
-        }
-    } catch (error) {
-        console.error('Error in compareImage:', error);
-    }
-    return undefined;
+function compareFaceToSamples(faceEmbedding: number[], processed: FaceRecord[]): FaceMatch[] {
+    return processed.map(record => ({
+        similarity: human.match.similarity(faceEmbedding, record.descriptors),
+        sampleId: record.id
+    })).sort((a, b) => b.similarity - a.similarity);
 }
 
-async function* compareImagesGenerator(images: { id: string, src: string }[], processed: FaceRecord[]): AsyncGenerator<{ id: string, result: ComparisonResult | undefined }> {
+async function* compareImagesGenerator(images: { id: string, src: string }[], processed: FaceRecord[]): AsyncGenerator<undefined | ComparisonResult> {
     for (const { id, src } of images) {
         try {
             const image = await fetchImageToImageBitmap(src);
-            const result = await human.detect(image, { face: { detector: { return: true } } });
-            const face = result.face[0];
-
-            if (face?.embedding) {
-                const descriptor = face.embedding;
-                const bestMatch = processed.reduce<ComparisonResult | undefined>((best, record) => {
-                    const distance = human.match.distance(descriptor, record.descriptors);
-                    const similarity = human.match.similarity(descriptor, record.descriptors);
-                    return (!best || similarity > best.similarity)
-                        ? { id: record.id, similarity, distance }
-                        : best;
-                }, undefined);
-
-                yield { id, result: bestMatch };
-            } else {
-                yield { id, result: undefined };
+            const result = await human.detect(image);
+            const payload: ComparisonResult = {
+                id,
+                faces: []
             }
+
+            for (const face of result.face) {
+                if (face.embedding) {
+                    const matches = compareFaceToSamples(face.embedding, processed);
+                    payload.faces.push(...matches);
+                }
+            }
+
+            yield payload;
+
         } catch (error) {
             console.error('Error in compareImage:', error);
-            yield { id, result: undefined };
+            yield undefined;
         }
     }
 }
-
 
 async function main() {
     await human.load()
@@ -184,12 +157,6 @@ async function main() {
                         });
                     }
                 }
-                // Send a message to indicate all processing is complete
-                if (sender.tab && sender.tab.id) {
-                    chrome.tabs.sendMessage(sender.tab.id, {
-                        name: "compare-complete"
-                    });
-                }
             })();
 
             return true;
@@ -199,7 +166,7 @@ async function main() {
 }
 
 
-setTimeout(main, 1000);
+setTimeout(main, 0);
 
 declare global {
     var human: Human;

@@ -1,9 +1,12 @@
-const SIZE = 50;
-const INTERVAL = 2000;
-let LAST_PROCESSED = new Date();
+import type { ComparisonResult } from "~background";
+import { extensionSettings } from "~utils/settings";
 
-function attachBlurUiToImage(image: HTMLImageElement) {
-    image.style.filter = 'blur(5px)';
+const SIZE = 25;
+
+function attachBlurUiToImage(image: HTMLImageElement, _meta: {
+    blurAmount: number;
+}) {
+    image.style.filter = `blur(${_meta.blurAmount}px)`;
     image.setAttribute('data-blur-id', 'true'); // Mark the image as processed
 }
 
@@ -15,9 +18,10 @@ function genUniqueId(length = 10) {
     return result;
 }
 
-function processImages(images: NodeListOf<HTMLImageElement>) {
+async function processImages(images: HTMLImageElement[]) {
+    const settings = await extensionSettings.get();
 
-    if (LAST_PROCESSED.getTime() + INTERVAL > new Date().getTime()) {
+    if (!settings.enabled) {
         return;
     }
 
@@ -32,12 +36,15 @@ function processImages(images: NodeListOf<HTMLImageElement>) {
         name: "compare",
         payload,
     })
-
-    LAST_PROCESSED = new Date();
 }
 
 function getUnprocessedImages() {
-    return document.querySelectorAll('img:not([data-blur-id])') as NodeListOf<HTMLImageElement>;
+    // order by apperance in viewport
+
+    let elements = document.querySelectorAll('img:not([data-blur-id])') as NodeListOf<HTMLImageElement>;
+    let elements_array = Array.from(elements)
+        .sort((a, b) => a.offsetTop - b.offsetTop)
+    return elements_array;
 }
 
 function observeDocumentMutation() {
@@ -58,27 +65,29 @@ function observeDocumentMutation() {
     });
 }
 
-observeDocumentMutation();
 
 window.addEventListener('load', function () {
     const images = getUnprocessedImages();
     processImages(images);
+    observeDocumentMutation();
 });
 
-setInterval(() => {
-    const images = getUnprocessedImages();
-    processImages(images);
-}, 1000);
-
 chrome.runtime.onMessage.addListener(
-    function (request, sender, sendResponse) {
-        console.log(request, sender);
-        if (request.name === "compare-result") {
-            const { id, result } = request.body;
+    async function (request, sender, sendResponse) {
+        const settings = await extensionSettings.get();
+        if (request.name === "compare-result" && request.body) {
+            const { id, faces } = request.body as ComparisonResult;
             const image = document.querySelector(`img[data-blur-id="${id}"]`) as HTMLImageElement;
-            if (image && result && result.similarity > 0.5) { 
-                attachBlurUiToImage(image);
-            }
+            faces.filter(face => face.sampleId === "abdel_fattah_sisi")
+                .forEach(face => {
+                    if (face.similarity >= 0.4) {
+                        attachBlurUiToImage(image, {
+                            blurAmount: settings.blurAmount
+                        });
+                    }
+                });
         }
+
+        return true;
     }
 );
