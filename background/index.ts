@@ -1,9 +1,12 @@
 import { Human, type Config } from '@vladmandic/human';
 
+
+const modelsPath = chrome.runtime.getURL('/models/');
+
 const humanConfig = <Config>{
     debug: false,
     async: true,
-    modelBasePath: "static/models",
+    modelBasePath: modelsPath,
     filter: { enabled: true, equalization: true },
     body: { enabled: false },
     hand: { enabled: false },
@@ -37,6 +40,7 @@ const samples: Sample[] = [{
     images: [
         "samples/220px-Abdel_Fatah_al-Sisi_2.jpg",
         "samples/AbdelFattah_Elsisi.jpg",
+        "samples/196379927_342631387227961_6698731964075942026_n.jpg",
         "samples/220px-General_Al-Sisi,_announcing_the_removal_of_President_Morsi.png"
     ]
 }]
@@ -195,19 +199,11 @@ async function main() {
 }
 
 
-
-
-
 setTimeout(main, 1000);
 
 declare global {
     var human: Human;
 }
-
-chrome.tabs.query({ active: true, currentWindow: true, }, function (tabs) {
-
-});
-
 
 
 export { main }

@@ -1,4 +1,4 @@
-const SIZE = 70;
+const SIZE = 50;
 const INTERVAL = 2000;
 let LAST_PROCESSED = new Date();
 
@@ -53,14 +53,17 @@ function observeDocumentMutation() {
 
     observer.observe(document.body, {
         childList: true,
-        subtree: true
+        subtree: true,
+        attributes: false,
+        characterData: false,
     });
 }
 
-const images = getUnprocessedImages();
-observeDocumentMutation();
-processImages(images);
-
+window.addEventListener('load', function () {
+    const images = getUnprocessedImages();
+    observeDocumentMutation();
+    processImages(images);
+});
 
 chrome.runtime.onMessage.addListener(
     function (request, sender, sendResponse) {
