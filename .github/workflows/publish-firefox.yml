@@ -24,13 +24,14 @@ jobs:
         run: npm install -g pnpm
 
       - name: Install Dependencies
-        run: pnpm install
+        if:  
+        run: pnpm install && pnpm check:published
 
       - name: Create Release Pull Request or Publish to npm
         id: changesets
         uses: changesets/action@v1
+        if: env.SHOULD_PUBLISH == 'true'
         with:
-          # This expects you to have a script called release which does a build for your packages and calls changeset publish
           publish: pnpm release:ci:firefox
         env:
             JWT_USERNAME: ${{ secrets.JWT_USERNAME }}
