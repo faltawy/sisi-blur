@@ -13,7 +13,7 @@
     "post:build": "node scripts/post-build.cjs",
     "cs": "pnpm changeset",
     "csv": "pnpm changeset version",
-    "check:published": "pnpm env-cmd node scripts/is-published.cjs"
+    "check:published": "pnpm cross-env node scripts/is-published.cjs"
   },
   "dependencies": {
     "@hono/node-server": "^1.12.2",
@@ -37,7 +37,7 @@
     "@types/react-dom": "18.2.18",
     "autoprefixer": "^10.4.20",
     "clsx": "^2.1.1",
-    "env-cmd": "^10.1.0",
+    "cross-env": "^7.0.3",
     "jsonwebtoken": "^9.0.2",
     "postcss": "^8.4.47",
     "prettier": "3.2.4",
