@@ -1,5 +1,0 @@
----
-"sisi-blur": patch
----
-
-listed

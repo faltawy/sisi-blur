@@ -1,5 +1,11 @@
 # sisi-blur
 
+## 0.0.4
+
+### Patch Changes
+
+- 73ddeed: listed
+
 ## 0.0.3
 
 ### Patch Changes
