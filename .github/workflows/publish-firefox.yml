@@ -43,6 +43,8 @@ jobs:
           publish: pnpm release:ci:firefox
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          JWT_USERNAME: ${{ secrets.JWT_USERNAME }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v3
