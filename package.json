@@ -8,7 +8,7 @@
   "scripts": {
     "dev": "plasmo dev",
     "build": "plasmo build --target=firefox-mv2 --source-maps --tag=prod",
-    "web-ext:sign": "web-ext sign --api-key=$JWT_USERNAME --api-secret=$JWT_SECRET --channel=unlisted --source-dir=build/firefox-mv2-prod",
+    "web-ext:sign": "web-ext sign --api-key=$JWT_USERNAME --api-secret=$JWT_SECRET --channel=listed --source-dir=build/firefox-mv2-prod",
     "release:ci:firefox": "pnpm build && pnpm web-ext:sign",
     "post:build": "node scripts/post-build.cjs",
     "cs": "pnpm changeset",
@@ -54,7 +54,8 @@
     ],
     "browser_specific_settings": {
       "gecko": {
-        "id": "{eefb93d8-fd4a-465e-b6d0-6a4430e51f45}"
+        "id": "{eefb93d8-fd4a-465e-b6d0-6a4430e51f45}",
+        "license": "MIT"
       }
     },
     "host_permissions": [
