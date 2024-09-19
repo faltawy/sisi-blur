@@ -24,12 +24,16 @@ jobs:
         run: npm install -g pnpm
 
       - name: Install Dependencies
-        run: pnpm install && pnpm check:published
+        run: pnpm install
+
+      - name: Check if should publish
+        run: pnpm check:published
         env:
           JWT_USERNAME: ${{ secrets.JWT_USERNAME }}
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          
+
+      - name: Set SHOULD_PUBLISH env var
+        run: echo "SHOULD_PUBLISH=$(cat should_publish)" >> $GITHUB_ENV
 
       - name: Create Release Pull Request or Publish to npm
         id: changesets
@@ -37,9 +41,12 @@ jobs:
         if: env.SHOULD_PUBLISH == 'true'
         with:
           publish: pnpm release:ci:firefox
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: artifacts
+      - name: Upload artifacts
         uses: actions/upload-artifact@v3
+        if: env.SHOULD_PUBLISH == 'true'
         with:
           name: firefox-mv2-prod
           path: build/firefox-mv2-prod
