@@ -13,7 +13,7 @@
     "post:build": "node scripts/post-build.cjs",
     "cs": "pnpm changeset",
     "csv": "pnpm changeset version",
-    "check:published": "pnpm cross-env node scripts/is-published.cjs"
+    "check:published": "node scripts/is-published.cjs"
   },
   "dependencies": {
     "@hono/node-server": "^1.12.2",

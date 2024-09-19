@@ -37,3 +37,9 @@ jobs:
             JWT_USERNAME: ${{ secrets.JWT_USERNAME }}
             JWT_SECRET: ${{ secrets.JWT_SECRET }}
             GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: firefox-mv2-prod
+          path: build/firefox-mv2-prod
