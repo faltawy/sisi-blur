@@ -6,7 +6,11 @@ on:
       - main
 
 concurrency: ${{ github.workflow }}-${{ github.ref }}
-
+env:
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  JWT_USERNAME: ${{ secrets.JWT_USERNAME }}
+  JWT_SECRET: ${{ secrets.JWT_SECRET }}
+  
 jobs:
   release:
     name: Release
@@ -28,9 +32,6 @@ jobs:
 
       - name: Check if should publish
         run: pnpm check:published
-        env:
-          JWT_USERNAME: ${{ secrets.JWT_USERNAME }}
-          JWT_SECRET: ${{ secrets.JWT_SECRET }}
 
       - name: Set SHOULD_PUBLISH env var
         run: echo "SHOULD_PUBLISH=$(cat should_publish)" >> $GITHUB_ENV
@@ -41,10 +42,6 @@ jobs:
         if: env.SHOULD_PUBLISH == 'true'
         with:
           publish: pnpm release:ci:firefox
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          JWT_USERNAME: ${{ secrets.JWT_USERNAME }}
-          JWT_SECRET: ${{ secrets.JWT_SECRET }}
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v3
