@@ -24,8 +24,12 @@ jobs:
         run: npm install -g pnpm
 
       - name: Install Dependencies
-        if:  
         run: pnpm install && pnpm check:published
+        env:
+          JWT_USERNAME: ${{ secrets.JWT_USERNAME }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          
 
       - name: Create Release Pull Request or Publish to npm
         id: changesets
@@ -33,10 +37,6 @@ jobs:
         if: env.SHOULD_PUBLISH == 'true'
         with:
           publish: pnpm release:ci:firefox
-        env:
-            JWT_USERNAME: ${{ secrets.JWT_USERNAME }}
-            JWT_SECRET: ${{ secrets.JWT_SECRET }}
-            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: artifacts
         uses: actions/upload-artifact@v3
