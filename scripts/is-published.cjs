@@ -32,11 +32,9 @@ async function isPublished(version) {
     if (publishedVersion === version) {
         console.log('✅ Version is published');
         env.SHOULD_PUBLISH = 'true';
-        process.exit(1);
     } else {
         console.log('❌ Version is not published');
         env.SHOULD_PUBLISH = 'false';
-        process.exit(0);
     }
 }
 
